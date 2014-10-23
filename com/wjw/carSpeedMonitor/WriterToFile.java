@@ -1,21 +1,17 @@
 package com.wjw.carSpeedMonitor;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Random;
-
+import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.IBasicBolt;
+import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
 
-public class WriterToFile implements IBasicBolt{
+import java.util.Date;
+import java.util.Map;
+
+public class WriterToFile implements IRichBolt{
 	static Date currentTime = new Date();
+    OutputCollector collector = null;
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		// TODO Auto-generated method stub
@@ -28,51 +24,26 @@ public class WriterToFile implements IBasicBolt{
 		return null;
 	}
 
-	@Override
-	public void prepare(Map stormConf, TopologyContext context) {
-		// TODO Auto-generated method stub
-		
-		
-	}
+
 	public void print_result(Tuple input) {
-		
-		FileWriter fw = null;
-		//Date currentTime = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-			String time = formatter.format(currentTime);
-
-			//System.out.println("prepare to print the statistics");
-			try {
-				fw = new FileWriter(new File("/root/result-carSpeedMonitor-" + time +".txt"),true);
-				fw.write(input.getString(0)+"\t" + input.getInteger(1) + "\t" + input.getInteger(2) + "\n");
-//				for(String key: counts.keySet()) {
-////					System.out.println(key + "\t" +counts.get(key));
-//				
-//					fw.write(key + " " + counts.get(key).toString() + "\n");
-//				}
-
-				fw.close();
-
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
-			//System.out.println("finish printing");
+		String result = input.getString(0)+"\t" + input.getInteger(1) + "\t" + input.getInteger(2) + "\n";
+		ProducerTest.sendMsg(result,"gps-test");
 		
     }
 	@Override
-	public void execute(Tuple input, BasicOutputCollector collector) {
+	public void execute(Tuple input) {
 		// TODO Auto-generated method stub
-		if(!input.getString(0).equals("0000")) {
-			System.out.println("writerfile receive: " + input.toString());
-			print_result(input);
-		} else {
-			
-		}
-		
+		print_result(input);
+
+		collector.ack(input);
 		
 	}
 
-	@Override
+    @Override
+    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
+        this.collector = collector;
+    }
+    @Override
 	public void cleanup() {
 		// TODO Auto-generated method stub
 		

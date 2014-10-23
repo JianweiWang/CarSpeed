@@ -13,7 +13,7 @@ public class CarSpeedMonitorTopology {
 		builder.setSpout("spout", new FileReaderSpout(),3);
 		builder.setBolt("thresholdbolt", new ThresholdCalculatorBolt(),1).setNumTasks(5).shuffleGrouping("spout");
 		builder.setBolt("statsbolt", new StatsBolt(),1).setNumTasks(5).fieldsGrouping("thresholdbolt", new Fields("carId","speed","city"));
-		builder.setBolt("writerfilebolt",new WriterToFile(),1).fieldsGrouping("statsbolt", new Fields("carId","city","count"));
+		//builder.setBolt("writerfilebolt",new WriterToFile(),2).setNumTasks(2).fieldsGrouping("statsbolt", new Fields("carId","city","count"));
 		
 		Config conf = new Config();
 		conf.setDebug(true);
@@ -30,7 +30,7 @@ public class CarSpeedMonitorTopology {
 			
 			LocalCluster cluster = new LocalCluster();
 			cluster.submitTopology("carSpeedMonitor", conf, builder.createTopology());
-			Utils.sleep(60000);
+			Utils.sleep(600000);
 			cluster.shutdown();
 		}
 	}
