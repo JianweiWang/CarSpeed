@@ -10,13 +10,15 @@ import backtype.storm.utils.Utils;
 public class CarSpeedMonitorTopology {
 	public static void main(String[] args) {
 		TopologyBuilder builder = new TopologyBuilder();
-		builder.setSpout("spout", new FileReaderSpout(),3);
-		builder.setBolt("thresholdbolt", new ThresholdCalculatorBolt(),1).setNumTasks(5).shuffleGrouping("spout");
-		builder.setBolt("statsbolt", new StatsBolt(),1).setNumTasks(5).fieldsGrouping("thresholdbolt", new Fields("carId","speed","city"));
+		builder.setSpout("spout", new FileReaderSpout(),6);
+		//builder.setBolt("thresholdbolt", new ThresholdCalculatorBolt(),1).setNumTasks(5).shuffleGrouping("spout");
+		//builder.setBolt("statsbolt", new StatsBolt(),1).setNumTasks(5).fieldsGrouping("thresholdbolt", new Fields("carId","speed","city"));
 		//builder.setBolt("writerfilebolt",new WriterToFile(),2).setNumTasks(2).fieldsGrouping("statsbolt", new Fields("carId","city","count"));
+        builder.setBolt("StatusFilterBolt", new StatusFilterBolt(),2).setNumTasks(5).shuffleGrouping("spout");
+        builder.setBolt("StatusStatsBolt", new StatusStatsBolt(),1).setNumTasks(2).fieldsGrouping("StatusFilterBolt",new Fields("carId","time"));
 		
 		Config conf = new Config();
-		conf.setDebug(true);
+		//conf.setDebug(true);
 		
 		if(args != null && args.length > 0) {
 			conf.setNumWorkers(3);

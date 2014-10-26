@@ -10,7 +10,8 @@ import java.util.Date;
 import java.util.Map;
 
 public class WriterToFile implements IRichBolt{
-	static Date currentTime = new Date();
+	//static Date currentTime = new Date();
+    ProducerTest producer = new ProducerTest();
     OutputCollector collector = null;
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
@@ -27,13 +28,13 @@ public class WriterToFile implements IRichBolt{
 
 	public void print_result(Tuple input) {
 		String result = input.getString(0)+"\t" + input.getInteger(1) + "\t" + input.getInteger(2) + "\n";
-		ProducerTest.sendMsg(result,"gps-test");
+		producer.sendMsg(result,"gps-test");
 		
     }
 	@Override
 	public void execute(Tuple input) {
 		// TODO Auto-generated method stub
-		print_result(input);
+		//print_result(input);
 
 		collector.ack(input);
 		
@@ -42,11 +43,14 @@ public class WriterToFile implements IRichBolt{
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
+        producer.init();
     }
     @Override
 	public void cleanup() {
 		// TODO Auto-generated method stub
 		
 	}
-
+    public static void main(String[] args) {
+        //ProducerTest.sendMsg("wjw","gps-test");
+    }
 }

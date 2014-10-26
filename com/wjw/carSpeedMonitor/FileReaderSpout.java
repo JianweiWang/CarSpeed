@@ -118,6 +118,9 @@ public class FileReaderSpout extends BaseRichSpout {
 		long time = Long.valueOf(datums[3]);
         int status = Integer.valueOf(datums[2]);
 		Values value = new Values(carId,speed,city,time,status);
+        if(time < 20121101000000L) {
+            return null;
+        }
 		return value;
 
 	}
@@ -156,14 +159,16 @@ public class FileReaderSpout extends BaseRichSpout {
             ConsumerIterator<byte[], byte[]> it = stream.iterator();
             while(it.hasNext()) {
                 data = new String(it.next().message());
-                // System.out.println("=============================================" + sentence);
                 break;
             }
         }
         Values v = getTuple(data);
-        _collector.emit(v,count);
+        if(null != v) {
+            _collector.emit(v,count);
 
-        count++;
+            count++;
+        }
+
        // ack(count);
 		
 	}

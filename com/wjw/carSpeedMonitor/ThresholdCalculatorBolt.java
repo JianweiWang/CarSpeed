@@ -36,7 +36,7 @@ public class ThresholdCalculatorBolt implements IRichBolt{
     @Override
 	public void execute(Tuple input) {
 		// TODO Auto-generated method stub
-        for(int i = 3000; i > 0; i--) {
+        for(int i = 2000; i > 0; i--) {
             Math.atan(i);
         }
 			//System.out.println("threshold receive: " + input.toString());

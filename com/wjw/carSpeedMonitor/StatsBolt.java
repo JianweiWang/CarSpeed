@@ -35,12 +35,12 @@ public class StatsBolt implements IRichBolt{
 		// TODO Auto-generated method stub
 
 
-        for(int i = 30000; i > 0; i--) {
+        for(int i = 20000; i > 0; i--) {
             Math.atan(i);
         }
 			long time = input.getLong(3);
             String time_seconds = String.valueOf(time - 20121100000000L);
-            long seconds = (Long.valueOf(time_seconds.substring(0,1)) - 1) * 24 * 3600 +
+            long seconds = (Long.valueOf(time_seconds.substring(0,1))) * 24 * 3600 +
                     Long.valueOf(time_seconds.substring(1,3)) * 3600
                     + Long.valueOf(time_seconds.substring(3,5)) * 60 + Long.valueOf(time_seconds.substring(5,7));
 
@@ -56,29 +56,32 @@ public class StatsBolt implements IRichBolt{
 			//Values v = new Values(carId,input.getInteger(2));
 			if(startTime == null) {
 
-				carIdToTime.put(carId, time);
+				carIdToTime.put(carId, seconds);
 				counts.put(carId, 1);
 			} else {
-				if(time - startTime <= 4 * 3600){
+				if(seconds - startTime <= 8 * 3600){
 					int count = counts.get(carId);
 
-					count++;
-					counts.put(carId, count);
+					counts.put(carId, count + 1);
+                    if(count + 1 >= 2) {
+                        collector.emit(new Values(input.getString(0),input.getInteger(2),counts.get(carId) + 1));
+                        counts.put(carId,0);
+                        carIdToTime.put(carId, seconds);
+                    }
 				} else {
 					if(counts.get(carId) != null && counts.get(carId) >= 2) {
 						//System.out.println("statsbolt: counts.get(v) >= 2");
-						//collector.emit(new Values(input.getString(0),input.getInteger(2),counts.get(carId)));
-						carIdToTime.put(carId, time);
+						collector.emit(new Values(input.getString(0),input.getInteger(2),counts.get(carId)));
+                        counts.put(carId,0);
+						carIdToTime.put(carId, seconds);
 						
-					} else if (counts.get(carId) == null ) {
-						//System.out.println("============================counts.get(v) = null!");
-					} 
+					}
 				}
 			}
 			
 
-			Set<String> list1 = counts.keySet();
-			Iterator iter = list1.iterator();
+//			Set<String> list1 = counts.keySet();
+//			Iterator iter = list1.iterator();
 //			while(iter.hasNext())
 //			{
 //				String v = (String) iter.next();
