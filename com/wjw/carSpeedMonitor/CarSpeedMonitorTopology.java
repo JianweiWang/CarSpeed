@@ -11,6 +11,7 @@ public class CarSpeedMonitorTopology {
 	public static void main(String[] args) {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("spout", new FileReaderSpout(),6);
+        //test
 		//builder.setBolt("thresholdbolt", new ThresholdCalculatorBolt(),1).setNumTasks(5).shuffleGrouping("spout");
 		//builder.setBolt("statsbolt", new StatsBolt(),1).setNumTasks(5).fieldsGrouping("thresholdbolt", new Fields("carId","speed","city"));
 		//builder.setBolt("writerfilebolt",new WriterToFile(),2).setNumTasks(2).fieldsGrouping("statsbolt", new Fields("carId","city","count"));
@@ -21,7 +22,7 @@ public class CarSpeedMonitorTopology {
 		//conf.setDebug(true);
 		
 		if(args != null && args.length > 0) {
-			conf.setNumWorkers(3);
+			conf.setNumWorkers(2);
 			try {
 				StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
 			} catch (Exception e) {
